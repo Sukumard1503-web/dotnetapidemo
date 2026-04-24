@@ -1,0 +1,25 @@
+trigger:
+- main
+
+pool:
+  vmImage: 'windows-latest'
+
+steps:
+- task: UseDotNet@2
+  inputs:
+    version: '8.0.x'
+
+- script: dotnet restore ./MyApi.csproj
+  displayName: Restore
+
+- script: dotnet build ./MyApi.csproj --configuration Release
+  displayName: Build
+
+- script: dotnet publish ./MyApi.csproj -c Release -o $(Build.ArtifactStagingDirectory)
+  displayName: Publish
+
+- task: AzureWebApp@1
+  inputs:
+    azureSubscription: 'YOUR-SERVICE-CONNECTION'
+    appName: 'dotnet-api-sukumar-dev'
+    package: '$(Build.ArtifactStagingDirectory)/**/*.zip'
